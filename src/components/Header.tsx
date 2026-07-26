@@ -1,11 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { Phone, Menu, X } from "lucide-react"
-import { useState } from "react"
+import { Phone, Menu, X, ChevronDown, User, LogIn } from "lucide-react"
+import { useState, useEffect } from "react"
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [serviciosOpen, setServiciosOpen] = useState(false)
+  const [usuario, setUsuario] = useState<{ nombre: string; rol: string } | null>(null)
+
+  useEffect(() => {
+    const stored = localStorage.getItem("usuario")
+    if (stored) {
+      try { setUsuario(JSON.parse(stored)) } catch { /* ignore */ }
+    }
+  }, [])
 
   const navLinks = [
     { href: "/", label: "Inicio" },
@@ -25,36 +34,83 @@ export default function Header() {
             <span className="text-xl font-bold text-secondary">TeleSalud</span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium transition-colors">
+              <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
                 {link.label}
               </Link>
             ))}
-            <Link href="/reserva" className="bg-primary text-white px-5 py-2 rounded-lg font-medium hover:bg-primary-dark transition-colors">
-              Reservar Hora
-            </Link>
+
+            <div className="relative group">
+              <button
+                className="flex items-center gap-1 text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                onMouseEnter={() => setServiciosOpen(true)}
+                onMouseLeave={() => setServiciosOpen(false)}
+              >
+                Servicios <ChevronDown size={14} />
+              </button>
+              {serviciosOpen && (
+                <div
+                  className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-56"
+                  onMouseEnter={() => setServiciosOpen(true)}
+                  onMouseLeave={() => setServiciosOpen(false)}
+                >
+                  <Link href="/especialidades" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Especialidades</Link>
+                  <Link href="/medicos" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Buscador de Médicos</Link>
+                  <Link href="/telemedicina" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Telemedicina</Link>
+                  <hr className="my-1 border-gray-100" />
+                  <Link href="/reserva" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Reservar Hora</Link>
+                  <Link href="/mis-citas" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Mis Citas</Link>
+                </div>
+              )}
+            </div>
+
+            {usuario ? (
+              <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                <User size={16} /> {usuario.nombre.split(" ")[0]}
+              </Link>
+            ) : (
+              <Link href="/auth/login" className="flex items-center gap-1 text-gray-500 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+                <LogIn size={16} /> Ingresar
+              </Link>
+            )}
           </nav>
 
-          <div className="hidden md:flex items-center gap-2 text-primary">
-            <Phone size={18} />
+          <div className="hidden lg:flex items-center gap-2 text-primary">
+            <Phone size={16} />
             <span className="text-sm font-medium">600 718 6000</span>
           </div>
 
-          <button className="md:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
+          <button className="lg:hidden p-2" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
 
         {menuOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-100">
-            <nav className="flex flex-col gap-3 pt-4">
+          <div className="lg:hidden pb-4 border-t border-gray-100">
+            <nav className="flex flex-col gap-2 pt-4">
               {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium" onClick={() => setMenuOpen(false)}>
+                <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
                   {link.label}
                 </Link>
               ))}
-              <Link href="/reserva" className="bg-primary text-white px-5 py-2 rounded-lg font-medium text-center" onClick={() => setMenuOpen(false)}>
+              <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
+                Especialidades
+              </Link>
+              <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
+                Buscador de Médicos
+              </Link>
+              <hr className="border-gray-100" />
+              {usuario ? (
+                <Link href="/admin" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>
+                  Panel Admin ({usuario.nombre})
+                </Link>
+              ) : (
+                <Link href="/auth/login" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>
+                  Iniciar Sesión
+                </Link>
+              )}
+              <Link href="/reserva" className="bg-primary text-white text-center font-medium px-5 py-2.5 rounded-lg hover:bg-primary-dark" onClick={() => setMenuOpen(false)}>
                 Reservar Hora
               </Link>
             </nav>
