@@ -51,14 +51,16 @@ export default function EspecialidadDetailPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <h3 className="font-semibold text-secondary">{medico.nombre}</h3>
+                          <Link href={`/medicos/${medico.id}`} className="font-semibold text-secondary hover:text-primary transition-colors">
+                            {medico.nombre}
+                          </Link>
                           <p className="text-sm text-gray-500">{medico.especialidad}{medico.subEspecialidad ? ` - ${medico.subEspecialidad}` : ""}</p>
                         </div>
                         <span className="flex items-center gap-1 text-sm text-yellow-500 shrink-0">
                           <Star size={14} fill="currentColor" /> {medico.experiencia} años
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600 mt-2">{medico.descripcion}</p>
+                      <Link href={`/medicos/${medico.id}`} className="text-sm text-gray-600 mt-2 hover:text-primary transition-colors block">{medico.descripcion}</Link>
                       <div className="flex flex-wrap gap-2 mt-3">
                         {medico.formatoAtencion.map((f) => (
                           <span key={f} className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full ${
@@ -75,6 +77,12 @@ export default function EspecialidadDetailPage() {
                           className="bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors inline-flex items-center gap-1"
                         >
                           <Calendar size={14} /> Reservar hora
+                        </Link>
+                        <Link
+                          href={`/medicos/${medico.id}`}
+                          className="border border-gray-300 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg hover:border-primary hover:text-primary transition-colors inline-flex items-center gap-1"
+                        >
+                          Ver perfil
                         </Link>
                       </div>
                     </div>

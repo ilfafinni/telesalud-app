@@ -134,14 +134,16 @@ export default function MedicosPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <h3 className="font-semibold text-secondary">{medico.nombre}</h3>
+                        <Link href={`/medicos/${medico.id}`} className="font-semibold text-secondary hover:text-primary transition-colors">
+                          {medico.nombre}
+                        </Link>
                         <p className="text-sm text-gray-500">{medico.especialidad}</p>
                       </div>
                       <span className="flex items-center gap-1 text-xs text-yellow-500 shrink-0">
                         <Star size={12} fill="currentColor" /> {medico.experiencia} años
                       </span>
                     </div>
-                    <p className="text-sm text-gray-600 mt-2 line-clamp-2">{medico.descripcion}</p>
+                    <Link href={`/medicos/${medico.id}`} className="text-sm text-gray-600 mt-2 line-clamp-2 hover:text-primary transition-colors block">{medico.descripcion}</Link>
                     <div className="flex flex-wrap gap-2 mt-3">
                       {medico.formatoAtencion.map((f) => (
                         <span key={f} className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full ${
@@ -159,12 +161,18 @@ export default function MedicosPage() {
                         </div>
                       ))}
                     </div>
-                    <div className="mt-3">
+                    <div className="mt-3 flex gap-2">
                       <Link
                         href={`/reserva?medico=${medico.id}`}
                         className="inline-flex items-center gap-1 bg-primary text-white text-sm font-medium px-4 py-2 rounded-lg hover:bg-primary-dark transition-colors"
                       >
-                        <Calendar size={14} /> Reservar hora
+                        <Calendar size={14} /> Reservar
+                      </Link>
+                      <Link
+                        href={`/medicos/${medico.id}`}
+                        className="inline-flex items-center gap-1 border border-gray-300 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg hover:border-primary hover:text-primary transition-colors"
+                      >
+                        Ver perfil
                       </Link>
                     </div>
                   </div>
