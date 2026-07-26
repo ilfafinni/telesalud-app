@@ -23,13 +23,17 @@ export default function LoginPage() {
 
     const user = usuariosRegistrados.find((u) => u.email === email)
     if (!user) {
-      setError("Usuario no encontrado. Prueba con: admin@telesalud.cl")
+      setError("Usuario no encontrado. Prueba con: admin@telesalud.cl o carlos.munoz@telesalud.cl")
       setLoading(false)
       return
     }
 
     localStorage.setItem("usuario", JSON.stringify(user))
-    router.push("/admin")
+    if (user.rol === "medico") {
+      router.push("/doctor")
+    } else {
+      router.push("/admin")
+    }
   }
 
   return (
@@ -94,8 +98,9 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <div className="text-xs text-gray-400 text-center pt-2 border-t border-gray-100">
-            <p>Demo: admin@telesalud.cl / cualquier contraseña</p>
+          <div className="text-xs text-gray-400 text-center pt-2 border-t border-gray-100 space-y-1">
+            <p>Admin: admin@telesalud.cl</p>
+            <p>Doctor: carlos.munoz@telesalud.cl (o cualquier médico @telesalud.cl)</p>
           </div>
         </form>
 

@@ -56,7 +56,10 @@ export default function Header() {
             </div>
 
             {usuario ? (
-              <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm ml-2">
+              <Link
+                href={usuario.rol === "medico" ? "/doctor" : "/admin"}
+                className="flex items-center gap-2 bg-primary/10 text-primary font-medium px-3 py-2 rounded-lg hover:bg-primary/20 transition-colors text-sm ml-2"
+              >
                 <User size={16} /> {usuario.nombre.split(" ")[0]}
               </Link>
             ) : (
@@ -89,7 +92,9 @@ export default function Header() {
               <Link href="/convenios" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Convenios y Seguros</Link>
               <hr className="border-gray-100" />
               {usuario ? (
-                <Link href="/admin" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>Panel Admin ({usuario.nombre})</Link>
+                <Link href={usuario.rol === "medico" ? "/doctor" : "/admin"} className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>
+                  {usuario.rol === "medico" ? "Panel Médico" : "Panel Admin"} ({usuario.nombre})
+                </Link>
               ) : (
                 <Link href="/auth/login" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>Iniciar Sesión</Link>
               )}
