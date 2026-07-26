@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { medicos, centros, especialidades } from "@/lib/data"
-import { Calendar, Clock, User, MapPin, Video, ArrowLeft, CheckCircle } from "lucide-react"
+import { Calendar, Clock, User, MapPin, Video, ArrowLeft, CheckCircle, CreditCard, AlertCircle } from "lucide-react"
 
-type Step = "identify" | "specialty" | "doctor" | "datetime" | "confirm" | "done"
+type Step = "identify" | "specialty" | "doctor" | "datetime" | "confirm" | "payment" | "done"
 
 interface FormData {
   rut: string
@@ -21,8 +21,12 @@ interface FormData {
   motivo: string
 }
 
+const MONTO_PRESENCIAL = 20000
+const MONTO_TELEMEDICINA = 15000
+
 export default function BookingFlow() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [step, setStep] = useState<Step>("identify")
   const [form, setForm] = useState<FormData>({
     rut: "", nombre: "", email: "", telefono: "",
@@ -31,6 +35,39 @@ export default function BookingFlow() {
   })
   const [citaId, setCitaId] = useState("")
   const [loading, setLoading] = useState(false)
+  const [paymentError, setPaymentError] = useState("")
+  const [webpayLoading, setWebpayLoading] = useState(false)
+
+  const monto = form.modalidad === "presencial" ? MONTO_PRESENCIAL : MONTO_TELEMEDICINA
+
+  useEffect(() => {
+    const confirmado = searchParams.get("confirmado")
+    const error = searchParams.get("error")
+    const id = searchParams.get("id")
+
+    if (confirmado === "true" && id) {
+      const saved = localStorage.getItem("booking_form")
+      if (saved) {
+        setForm(JSON.parse(saved))
+        localStorage.removeItem("booking_form")
+      }
+      setCitaId(id)
+      setStep("done")
+    }
+
+    if (error) {
+      const saved = localStorage.getItem("booking_form")
+      if (saved) {
+        setForm(JSON.parse(saved))
+      }
+      setPaymentError(
+        error === "webpay_cancelado" ? "Pago cancelado" :
+        error === "webpay_rechazado" ? "Pago rechazado" :
+        "Error al procesar el pago"
+      )
+      setStep("payment")
+    }
+  }, [searchParams])
 
   const updateForm = (key: keyof FormData, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -51,44 +88,117 @@ export default function BookingFlow() {
 
   const handleSubmit = async () => {
     setLoading(true)
-    await new Promise((r) => setTimeout(r, 1000))
-    const id = `CIT-${Date.now().toString(36).toUpperCase()}`
-    setCitaId(id)
-    setStep("done")
+    setPaymentError("")
+    try {
+      const id = `CIT-${Date.now().toString(36).toUpperCase()}`
+      const medico = medicos.find((m) => m.id === form.medicoId)
+      const centroId = form.modalidad === "presencial" ? form.centroId : ""
+      const centroNombre = form.modalidad === "presencial"
+        ? centros.find((c) => c.id === form.centroId)?.nombre || ""
+        : "Telemedicina"
+
+      const citaData = {
+        id,
+        pacienteRut: form.rut,
+        pacienteNombre: form.nombre,
+        pacienteEmail: form.email,
+        pacienteTelefono: form.telefono,
+        medicoId: form.medicoId,
+        medicoNombre: medico?.nombre || "",
+        especialidad: form.especialidad,
+        centroId,
+        centroNombre,
+        fecha: form.fecha,
+        hora: form.hora,
+        modalidad: form.modalidad,
+        estado: "pendiente" as const,
+        motivo: form.motivo,
+        creadaEn: new Date().toISOString(),
+        monto,
+        pagada: false,
+      }
+
+      await fetch("/api/citas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(citaData),
+      })
+
+      setCitaId(id)
+      setStep("payment")
+    } catch {
+      setPaymentError("Error al crear la cita. Intenta nuevamente.")
+    }
     setLoading(false)
+  }
+
+  const handleWebpay = async () => {
+    setWebpayLoading(true)
+    setPaymentError("")
+    try {
+      localStorage.setItem("booking_form", JSON.stringify(form))
+      const res = await fetch("/api/webpay/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: monto,
+          buyOrder: citaId,
+          sessionId: form.rut,
+        }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        setPaymentError("Error al conectar con Webpay")
+      }
+    } catch {
+      setPaymentError("Error al procesar el pago")
+    }
+    setWebpayLoading(false)
   }
 
   const StepIndicator = () => (
     <div className="flex items-center justify-center gap-2 mb-8 text-sm">
-      {["identify", "specialty", "doctor", "datetime", "confirm"].indexOf(step) > 0 ? (
+      {["identify", "specialty", "doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
         <button onClick={() => setStep("identify")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">1</button>
       ) : (
         <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">1</div>
       )}
       <div className="w-8 h-0.5 bg-gray-300" />
-      {["specialty", "doctor", "datetime", "confirm"].indexOf(step) > 0 ? (
-        <button onClick={() => ["identify", "specialty"].includes(step) ? setStep("specialty") : {}} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">2</button>
+      {["specialty", "doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
+        <button onClick={() => setStep("specialty")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">2</button>
       ) : (
         <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">2</div>
       )}
       <div className="w-8 h-0.5 bg-gray-300" />
-      {["doctor", "datetime", "confirm"].indexOf(step) > 0 ? (
-        <button onClick={() => ["identify", "specialty", "doctor"].includes(step) ? setStep("doctor") : {}} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">3</button>
+      {["doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
+        <button onClick={() => setStep("doctor")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">3</button>
       ) : (
         <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">3</div>
       )}
       <div className="w-8 h-0.5 bg-gray-300" />
-      {["datetime", "confirm"].indexOf(step) > 0 ? (
-        <button onClick={() => ["identify", "specialty", "doctor", "datetime"].includes(step) ? setStep("datetime") : {}} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">4</button>
+      {["datetime", "confirm", "payment"].indexOf(step) > 0 ? (
+        <button onClick={() => setStep("datetime")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">4</button>
       ) : (
         <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">4</div>
       )}
-      {step === "done" ? <div className="w-8 h-0.5 bg-gray-300" /> : <div className="w-8 h-0.5 bg-gray-300" />}
-      {step === "done" ? (
-        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">5</div>
+      <div className="w-8 h-0.5 bg-gray-300" />
+      {["confirm", "payment"].indexOf(step) > 0 ? (
+        <button onClick={() => setStep("confirm")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">5</button>
       ) : (
         <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">5</div>
       )}
+      <div className="w-8 h-0.5 bg-gray-300" />
+      {step === "payment" || step === "done" ? (
+        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">6</div>
+      ) : (
+        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">6</div>
+      )}
+      {step === "done" ? <div className="w-8 h-0.5 bg-gray-300" /> : null}
+      {step === "done" ? (
+        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">7</div>
+      ) : null}
     </div>
   )
 
@@ -363,6 +473,13 @@ export default function BookingFlow() {
                 <p className="text-xs text-gray-500">{form.especialidad}</p>
               </div>
             </div>
+            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+              <CreditCard size={18} className="text-primary" />
+              <div>
+                <p className="text-sm font-medium">${monto.toLocaleString("es-CL")}</p>
+                <p className="text-xs text-gray-500">{form.modalidad === "presencial" ? "Presencial" : "Telemedicina"}</p>
+              </div>
+            </div>
           </div>
 
           <button
@@ -375,7 +492,58 @@ export default function BookingFlow() {
         </div>
       )}
 
-      {/* Step 6: Listo */}
+      {/* Step 6: Pago */}
+      {step === "payment" && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-semibold text-secondary mb-2">Pago</h2>
+          <p className="text-gray-500 text-sm mb-6">Confirma el pago para reservar tu cita.</p>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-gray-600">Consulta {form.modalidad === "presencial" ? "presencial" : "telemedicina"}</span>
+              <span className="font-semibold text-secondary">${monto.toLocaleString("es-CL")}</span>
+            </div>
+            <div className="flex justify-between items-center text-sm">
+              <span className="text-gray-500">Código:</span>
+              <span className="font-mono text-primary font-medium">{citaId}</span>
+            </div>
+            <hr className="my-3 border-gray-200" />
+            <div className="flex justify-between items-center text-lg">
+              <span className="font-semibold text-secondary">Total</span>
+              <span className="font-bold text-primary">${monto.toLocaleString("es-CL")}</span>
+            </div>
+          </div>
+
+          {paymentError && (
+            <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg mb-4">
+              <AlertCircle size={18} className="text-red-500 shrink-0" />
+              <p className="text-sm text-red-600">{paymentError}</p>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            <button
+              onClick={handleWebpay}
+              disabled={webpayLoading}
+              className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            >
+              {webpayLoading ? (
+                "Conectando con Webpay..."
+              ) : (
+                <>
+                  <CreditCard size={20} />
+                  Pagar con Webpay
+                </>
+              )}
+            </button>
+            <p className="text-xs text-gray-400 text-center">
+              Pago seguro via Webpay por Transbank. No guardamos tus datos de tarjeta.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Step 7: Listo */}
       {step === "done" && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 text-center">
           <div className="flex justify-center mb-4">
@@ -398,6 +566,9 @@ export default function BookingFlow() {
             </p>
             <p className="text-sm text-gray-600">
               <strong>Modalidad:</strong> {form.modalidad === "presencial" ? "Presencial" : "Telemedicina"}
+            </p>
+            <p className="text-sm text-gray-600">
+              <strong>Pagado:</strong> ${monto.toLocaleString("es-CL")} vía Webpay
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-3 justify-center">

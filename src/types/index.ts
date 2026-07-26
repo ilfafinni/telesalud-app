@@ -51,7 +51,25 @@ export interface Cita {
   motivo: string
   creadaEn: string
   notas?: string
+  monto: number
+  pagada: boolean
+  webpayToken?: string
 }
+
+export interface WebpayTransaction {
+  token: string
+  url: string
+  buyOrder: string
+}
+
+export interface WebpayCommitResponse {
+  status: string
+  amount: number
+  buyOrder: string
+  transactionDate: string
+  cardDetail?: { cardNumber: string }
+}
+
 
 export interface Paciente {
   rut: string

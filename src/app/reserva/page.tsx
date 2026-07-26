@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import BookingFlow from "@/components/BookingFlow"
 
 export default function ReservaPage() {
@@ -10,7 +11,9 @@ export default function ReservaPage() {
             Sin registro. Solo completa tus datos y elige la mejor opción para ti.
           </p>
         </div>
-        <BookingFlow />
+        <Suspense fallback={<div className="text-center py-8 text-gray-500">Cargando...</div>}>
+          <BookingFlow />
+        </Suspense>
       </div>
     </div>
   )
