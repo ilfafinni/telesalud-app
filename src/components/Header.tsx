@@ -16,13 +16,6 @@ export default function Header() {
     }
   }, [])
 
-  const navLinks = [
-    { href: "/", label: "Inicio" },
-    { href: "/reserva", label: "Reservar Hora" },
-    { href: "/mis-citas", label: "Mis Citas" },
-    { href: "/telemedicina", label: "Telemedicina" },
-  ]
-
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
@@ -35,11 +28,10 @@ export default function Header() {
           </Link>
 
           <nav className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                {link.label}
-              </Link>
-            ))}
+            <Link href="/" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Inicio</Link>
+            <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Especialidades</Link>
+            <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Médicos</Link>
+            <Link href="/centros" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Centros</Link>
 
             <div className="relative group">
               <button
@@ -55,28 +47,26 @@ export default function Header() {
                   onMouseEnter={() => setServiciosOpen(true)}
                   onMouseLeave={() => setServiciosOpen(false)}
                 >
-                  <Link href="/especialidades" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Especialidades</Link>
-                  <Link href="/medicos" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Buscador de Médicos</Link>
-                  <Link href="/telemedicina" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Telemedicina</Link>
-                  <hr className="my-1 border-gray-100" />
                   <Link href="/reserva" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Reservar Hora</Link>
                   <Link href="/mis-citas" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Mis Citas</Link>
+                  <Link href="/telemedicina" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Telemedicina</Link>
+                  <Link href="/convenios" className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-primary">Convenios y Seguros</Link>
                 </div>
               )}
             </div>
 
             {usuario ? (
-              <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              <Link href="/admin" className="flex items-center gap-2 text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm ml-2">
                 <User size={16} /> {usuario.nombre.split(" ")[0]}
               </Link>
             ) : (
-              <Link href="/auth/login" className="flex items-center gap-1 text-gray-500 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">
+              <Link href="/auth/login" className="flex items-center gap-1 text-gray-500 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm ml-2">
                 <LogIn size={16} /> Ingresar
               </Link>
             )}
           </nav>
 
-          <div className="hidden lg:flex items-center gap-2 text-primary">
+          <div className="hidden lg:flex items-center gap-2 text-primary ml-4">
             <Phone size={16} />
             <span className="text-sm font-medium">600 718 6000</span>
           </div>
@@ -89,30 +79,21 @@ export default function Header() {
         {menuOpen && (
           <div className="lg:hidden pb-4 border-t border-gray-100">
             <nav className="flex flex-col gap-2 pt-4">
-              {navLinks.map((link) => (
-                <Link key={link.href} href={link.href} className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                  {link.label}
-                </Link>
-              ))}
-              <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                Especialidades
-              </Link>
-              <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>
-                Buscador de Médicos
-              </Link>
+              <Link href="/" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Inicio</Link>
+              <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Especialidades</Link>
+              <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Buscador de Médicos</Link>
+              <Link href="/centros" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Centros Médicos</Link>
+              <Link href="/reserva" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Reservar Hora</Link>
+              <Link href="/mis-citas" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Mis Citas</Link>
+              <Link href="/telemedicina" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Telemedicina</Link>
+              <Link href="/convenios" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Convenios y Seguros</Link>
               <hr className="border-gray-100" />
               {usuario ? (
-                <Link href="/admin" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>
-                  Panel Admin ({usuario.nombre})
-                </Link>
+                <Link href="/admin" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>Panel Admin ({usuario.nombre})</Link>
               ) : (
-                <Link href="/auth/login" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>
-                  Iniciar Sesión
-                </Link>
+                <Link href="/auth/login" className="text-gray-600 hover:text-primary font-medium px-3 py-2" onClick={() => setMenuOpen(false)}>Iniciar Sesión</Link>
               )}
-              <Link href="/reserva" className="bg-primary text-white text-center font-medium px-5 py-2.5 rounded-lg hover:bg-primary-dark" onClick={() => setMenuOpen(false)}>
-                Reservar Hora
-              </Link>
+              <Link href="/reserva" className="bg-primary text-white text-center font-medium px-5 py-2.5 rounded-lg hover:bg-primary-dark mt-2" onClick={() => setMenuOpen(false)}>Reservar Hora</Link>
             </nav>
           </div>
         )}
