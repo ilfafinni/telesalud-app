@@ -24,6 +24,35 @@ interface FormData {
 const MONTO_PRESENCIAL = 20000
 const MONTO_TELEMEDICINA = 15000
 
+function StepIndicator({ step, goTo }: { step: Step; goTo: (s: Step) => void }) {
+  const circles: { label: number; verde: boolean; boton: boolean; target?: Step }[] = [
+    { label: 1, verde: true, boton: step !== "identify" && step !== "done", target: "identify" },
+    { label: 2, verde: step === "doctor" || step === "datetime" || step === "confirm" || step === "payment", boton: step === "doctor" || step === "datetime" || step === "confirm" || step === "payment", target: "specialty" },
+    { label: 3, verde: step === "datetime" || step === "confirm" || step === "payment", boton: step === "datetime" || step === "confirm" || step === "payment", target: "doctor" },
+    { label: 4, verde: step === "confirm" || step === "payment", boton: step === "confirm" || step === "payment", target: "datetime" },
+    { label: 5, verde: step === "payment", boton: step === "payment", target: "confirm" },
+    { label: 6, verde: step === "payment" || step === "done", boton: false },
+  ]
+  return (
+    <div className="flex items-center justify-center gap-2 mb-8 text-sm">
+      {circles.map((c, i) => (
+        <div key={c.label} className="flex items-center gap-2">
+          {i > 0 && <div className="w-8 h-0.5 bg-gray-300" />}
+          {c.boton && c.target ? (
+            <button onClick={() => goTo(c.target as Step)} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">{c.label}</button>
+          ) : (
+            <div className={`w-8 h-8 rounded-full ${c.verde ? "bg-primary text-white" : "bg-gray-200 text-gray-400"} text-sm font-medium flex items-center justify-center`}>{c.label}</div>
+          )}
+        </div>
+      ))}
+      {step === "done" ? <div className="w-8 h-0.5 bg-gray-300" /> : null}
+      {step === "done" ? (
+        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">7</div>
+      ) : null}
+    </div>
+  )
+}
+
 export default function BookingFlow() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -158,53 +187,9 @@ export default function BookingFlow() {
     setWebpayLoading(false)
   }
 
-  const StepIndicator = () => (
-    <div className="flex items-center justify-center gap-2 mb-8 text-sm">
-      {["identify", "specialty", "doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
-        <button onClick={() => setStep("identify")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">1</button>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">1</div>
-      )}
-      <div className="w-8 h-0.5 bg-gray-300" />
-      {["specialty", "doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
-        <button onClick={() => setStep("specialty")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">2</button>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">2</div>
-      )}
-      <div className="w-8 h-0.5 bg-gray-300" />
-      {["doctor", "datetime", "confirm", "payment"].indexOf(step) > 0 ? (
-        <button onClick={() => setStep("doctor")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">3</button>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">3</div>
-      )}
-      <div className="w-8 h-0.5 bg-gray-300" />
-      {["datetime", "confirm", "payment"].indexOf(step) > 0 ? (
-        <button onClick={() => setStep("datetime")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">4</button>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">4</div>
-      )}
-      <div className="w-8 h-0.5 bg-gray-300" />
-      {["confirm", "payment"].indexOf(step) > 0 ? (
-        <button onClick={() => setStep("confirm")} className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium">5</button>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">5</div>
-      )}
-      <div className="w-8 h-0.5 bg-gray-300" />
-      {step === "payment" || step === "done" ? (
-        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">6</div>
-      ) : (
-        <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-400 text-sm font-medium flex items-center justify-center">6</div>
-      )}
-      {step === "done" ? <div className="w-8 h-0.5 bg-gray-300" /> : null}
-      {step === "done" ? (
-        <div className="w-8 h-8 rounded-full bg-primary text-white text-sm font-medium flex items-center justify-center">7</div>
-      ) : null}
-    </div>
-  )
-
-  return (
+return (
     <div className="max-w-2xl mx-auto">
-      <StepIndicator />
+      <StepIndicator step={step} goTo={setStep} />
 
       {/* Step 1: Identificación */}
       {step === "identify" && (

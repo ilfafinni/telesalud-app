@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, CalendarDays, Stethoscope, Building2, Settings, LogOut, ArrowLeft } from "lucide-react"
+import { LayoutDashboard, CalendarDays, Stethoscope, Building2, LogOut, ArrowLeft } from "lucide-react"
 
 const links = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },

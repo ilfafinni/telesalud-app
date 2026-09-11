@@ -2,13 +2,12 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import { citas, medicoPorEmail } from "@/lib/data"
+import { citas, medicoPorEmail, actualizarEstadoCita } from "@/lib/data"
 import type { Cita } from "@/types"
-import { Search, CalendarDays, Clock, User, MapPin, Video, CheckCircle, XCircle, Phone, Mail } from "lucide-react"
+import { Search, CalendarDays, Clock, MapPin, Video, CheckCircle, XCircle, Phone, Mail } from "lucide-react"
 
 export default function DoctorCitasPage() {
   const router = useRouter()
-  const [medicoId, setMedicoId] = useState("")
   const [busqueda, setBusqueda] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("todas")
   const [citasList, setCitasList] = useState<Cita[]>([])
@@ -18,7 +17,6 @@ export default function DoctorCitasPage() {
     if (!stored) { router.push("/auth/login"); return }
     const user = JSON.parse(stored)
     const id = medicoPorEmail[user.email] || ""
-    setMedicoId(id)
     setCitasList(citas.filter((c) => c.medicoId === id))
   }, [router])
 
@@ -35,8 +33,7 @@ export default function DoctorCitasPage() {
 
   const cambiarEstado = (citaId: string, nuevoEstado: Cita["estado"]) => {
     setCitasList((prev) => prev.map((c) => c.id === citaId ? { ...c, estado: nuevoEstado } : c))
-    const idx = citas.findIndex((c) => c.id === citaId)
-    if (idx !== -1) citas[idx].estado = nuevoEstado
+    actualizarEstadoCita(citaId, nuevoEstado)
   }
 
   const estadoBadge = (estado: string) => {

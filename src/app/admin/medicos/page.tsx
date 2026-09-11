@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react"
 import { medicos, especialidades } from "@/lib/data"
-import { Search, Stethoscope, MapPin, Video, Star, Edit2, ToggleLeft, ToggleRight } from "lucide-react"
+import { Search, MapPin, Video, Edit2, ToggleLeft, ToggleRight } from "lucide-react"
 
 export default function AdminMedicosPage() {
   const [busqueda, setBusqueda] = useState("")

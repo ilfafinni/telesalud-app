@@ -62,7 +62,7 @@ export default function Home() {
               {convenios.map((c) => (
                 <span key={c} className="bg-gray-100 text-gray-700 px-5 py-2.5 rounded-lg font-medium text-sm hover:bg-primary-light hover:text-primary transition-colors cursor-pointer">{c}</span>
               ))}
-              <span className="bg-primary text-white px-5 py-2.5 rounded-lg font-medium text-sm">+更多</span>
+              <span className="bg-primary text-white px-5 py-2.5 rounded-lg font-medium text-sm">+más convenios</span>
             </div>
           </div>
         </div>

@@ -1,22 +1,17 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { citas, medicos, centros, especialidadesData } from "@/lib/data"
-import { CalendarDays, Stethoscope, Building2, TrendingUp, Clock, CheckCircle, XCircle, AlertTriangle } from "lucide-react"
+import { CalendarDays, Stethoscope, Building2, TrendingUp, Clock, CheckCircle, XCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalCitas: 0, pendientes: 0, confirmadas: 0, realizadas: 0, canceladas: 0 })
-
-  useEffect(() => {
-    setStats({
-      totalCitas: citas.length,
-      pendientes: citas.filter((c) => c.estado === "pendiente").length,
-      confirmadas: citas.filter((c) => c.estado === "confirmada").length,
-      realizadas: citas.filter((c) => c.estado === "realizada").length,
-      canceladas: citas.filter((c) => c.estado === "cancelada").length,
-    })
-  }, [])
+  const stats = {
+    totalCitas: citas.length,
+    pendientes: citas.filter((c) => c.estado === "pendiente").length,
+    confirmadas: citas.filter((c) => c.estado === "confirmada").length,
+    realizadas: citas.filter((c) => c.estado === "realizada").length,
+    canceladas: citas.filter((c) => c.estado === "cancelada").length,
+  }
 
   const cards = [
     { label: "Total Citas", value: stats.totalCitas, icon: CalendarDays, color: "bg-blue-500" },

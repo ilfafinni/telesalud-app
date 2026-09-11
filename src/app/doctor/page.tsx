@@ -1,13 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { citas, medicos, medicoPorEmail } from "@/lib/data"
-import { CalendarDays, Clock, Users, TrendingUp, CheckCircle, XCircle, Video, MapPin } from "lucide-react"
+import { CalendarDays, Clock, TrendingUp, CheckCircle, Video, MapPin } from "lucide-react"
 import Link from "next/link"
 
 export default function DoctorDashboard() {
-  const router = useRouter()
   const [medicoId, setMedicoId] = useState("")
   const [medicoNombre, setMedicoNombre] = useState("")
 

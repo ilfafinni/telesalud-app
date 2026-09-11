@@ -1,17 +1,37 @@
 "use client"
 
 import { useState } from "react"
-import { citas } from "@/lib/data"
-import { Calendar, Clock, MapPin, Video, Search, XCircle } from "lucide-react"
+import { citas, actualizarEstadoCita } from "@/lib/data"
+import type { Cita } from "@/types"
+import { Calendar, Clock, MapPin, Video, Search, XCircle, CheckCircle } from "lucide-react"
 import Link from "next/link"
 
 export default function MisCitasPage() {
   const [rut, setRut] = useState("")
   const [buscado, setBuscado] = useState(false)
+  const [citasPaciente, setCitasPaciente] = useState<Cita[]>([])
+  const [mensaje, setMensaje] = useState("")
 
-  const citasPaciente = buscado && rut
-    ? citas.filter((c) => c.pacienteRut === rut)
-    : []
+  const buscar = () => {
+    setBuscado(true)
+    setMensaje("")
+    setCitasPaciente(citas.filter((c) => c.pacienteRut === rut))
+  }
+
+  const cambiarEstado = async (citaId: string, nuevoEstado: Cita["estado"]) => {
+    setCitasPaciente((prev) => prev.map((c) => c.id === citaId ? { ...c, estado: nuevoEstado } : c))
+    actualizarEstadoCita(citaId, nuevoEstado)
+    setMensaje(nuevoEstado === "cancelada" ? "Cita cancelada correctamente." : "Cita confirmada correctamente.")
+    try {
+      await fetch(`/api/citas/${citaId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      })
+    } catch {
+      // La cita se actualizó en memoria aunque la API falle
+    }
+  }
 
   const estadoBadge = (estado: string) => {
     const styles: Record<string, string> = {
@@ -39,10 +59,10 @@ export default function MisCitasPage() {
               className="flex-1 border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               value={rut}
               onChange={(e) => setRut(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && setBuscado(true)}
+              onKeyDown={(e) => e.key === "Enter" && buscar()}
             />
             <button
-              onClick={() => setBuscado(true)}
+              onClick={buscar}
               disabled={!rut}
               className="bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center gap-2"
             >
@@ -58,6 +78,13 @@ export default function MisCitasPage() {
             <Link href="/reserva" className="text-primary font-medium hover:underline mt-2 inline-block">
               Reservar una hora
             </Link>
+          </div>
+        )}
+
+        {mensaje && (
+          <div className="flex items-center gap-2 p-3 bg-green-50 border border-green-200 rounded-lg mb-4">
+            <CheckCircle size={18} className="text-green-600 shrink-0" />
+            <p className="text-sm text-green-700">{mensaje}</p>
           </div>
         )}
 
@@ -97,8 +124,18 @@ export default function MisCitasPage() {
 
                 {cita.estado === "pendiente" && (
                   <div className="mt-4 pt-3 border-t border-gray-100 flex gap-2">
-                    <button className="text-sm text-primary font-medium hover:underline">Confirmar</button>
-                    <button className="text-sm text-red-500 font-medium hover:underline">Cancelar</button>
+                    <button
+                      onClick={() => cambiarEstado(cita.id, "confirmada")}
+                      className="text-sm text-primary font-medium hover:underline flex items-center gap-1"
+                    >
+                      <CheckCircle size={14} /> Confirmar
+                    </button>
+                    <button
+                      onClick={() => cambiarEstado(cita.id, "cancelada")}
+                      className="text-sm text-red-500 font-medium hover:underline"
+                    >
+                      Cancelar
+                    </button>
                   </div>
                 )}
 

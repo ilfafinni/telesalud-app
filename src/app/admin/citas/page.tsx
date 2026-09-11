@@ -1,15 +1,31 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { citas } from "@/lib/data"
-import { Search, CalendarDays, Clock, User, MapPin, Video, MoreHorizontal, CheckCircle, XCircle, Eye } from "lucide-react"
+import { citas, actualizarEstadoCita } from "@/lib/data"
+import type { Cita } from "@/types"
+import { Search, CalendarDays, User, MapPin, Video, CheckCircle, XCircle, Eye } from "lucide-react"
 
 export default function AdminCitasPage() {
   const [busqueda, setBusqueda] = useState("")
   const [filtroEstado, setFiltroEstado] = useState("todas")
+  const [citasList, setCitasList] = useState<Cita[]>(() => citas)
+
+  const cambiarEstado = async (citaId: string, nuevoEstado: Cita["estado"]) => {
+    setCitasList((prev) => prev.map((c) => c.id === citaId ? { ...c, estado: nuevoEstado } : c))
+    actualizarEstadoCita(citaId, nuevoEstado)
+    try {
+      await fetch(`/api/citas/${citaId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      })
+    } catch {
+      // La cita se actualizó en memoria aunque la API falle
+    }
+  }
 
   const filtradas = useMemo(() => {
-    return citas.filter((c) => {
+    return citasList.filter((c) => {
       if (filtroEstado !== "todas" && c.estado !== filtroEstado) return false
       if (busqueda) {
         const q = busqueda.toLowerCase()
@@ -17,7 +33,7 @@ export default function AdminCitasPage() {
       }
       return true
     })
-  }, [busqueda, filtroEstado])
+  }, [citasList, busqueda, filtroEstado])
 
   const estadoBadge = (estado: string) => {
     const map: Record<string, string> = {
@@ -108,9 +124,25 @@ export default function AdminCitasPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button className="p-1.5 hover:bg-gray-100 rounded" title="Ver detalle"><Eye size={14} className="text-gray-500" /></button>
-                      <button className="p-1.5 hover:bg-green-50 rounded" title="Confirmar"><CheckCircle size={14} className="text-green-500" /></button>
-                      <button className="p-1.5 hover:bg-red-50 rounded" title="Cancelar"><XCircle size={14} className="text-red-500" /></button>
+                      <button
+                        className="p-1.5 hover:bg-gray-100 rounded"
+                        title="Ver detalle"
+                        onClick={() => alert(`Cita ${cita.id}\nPaciente: ${cita.pacienteNombre}\nMédico: ${cita.medicoNombre}\nFecha: ${cita.fecha} ${cita.hora}\nEspecialidad: ${cita.especialidad}\nModalidad: ${cita.modalidad}\nEstado: ${cita.estado}${cita.motivo ? `\nMotivo: ${cita.motivo}` : ""}`)}
+                      ><Eye size={14} className="text-gray-500" /></button>
+                      {cita.estado !== "confirmada" && cita.estado !== "realizada" && (
+                        <button
+                          className="p-1.5 hover:bg-green-50 rounded"
+                          title="Confirmar"
+                          onClick={() => cambiarEstado(cita.id, "confirmada")}
+                        ><CheckCircle size={14} className="text-green-500" /></button>
+                      )}
+                      {cita.estado !== "cancelada" && cita.estado !== "realizada" && (
+                        <button
+                          className="p-1.5 hover:bg-red-50 rounded"
+                          title="Cancelar"
+                          onClick={() => cambiarEstado(cita.id, "cancelada")}
+                        ><XCircle size={14} className="text-red-500" /></button>
+                      )}
                     </div>
                   </td>
                 </tr>

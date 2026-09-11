@@ -45,7 +45,7 @@ export const centros: CentroMedico[] = [
   { id: "C007", nombre: "Centro Médico Concepción", direccion: "Av. Paicaví 123", ciudad: "Concepción", region: "Biobío", telefono: "600 718 6000", horario: "Lun-Vie 8:30-18:30 / Sáb 9:00-13:00", servicios: ["Medicina General", "Cardiología", "Traumatología", "Kinesiología", "Oftalmología"] },
 ]
 
-export let citas: Cita[] = [
+export const citas: Cita[] = [
   { id: "CIT-001", pacienteRut: "12345678-9", pacienteNombre: "Juan Pérez", pacienteEmail: "juan@email.com", pacienteTelefono: "+56912345678", medicoId: "M001", medicoNombre: "Dr. Carlos Muñoz", especialidad: "Medicina General", centroId: "C001", centroNombre: "Centro Médico Santiago", fecha: "2026-07-28", hora: "10:00", modalidad: "presencial", estado: "confirmada", motivo: "Control general", creadaEn: "2026-07-25T12:00:00Z", monto: 20000, pagada: true },
   { id: "CIT-002", pacienteRut: "12345678-9", pacienteNombre: "Juan Pérez", pacienteEmail: "juan@email.com", pacienteTelefono: "+56912345678", medicoId: "M003", medicoNombre: "Dr. Pablo Soto", especialidad: "Cardiología", centroId: "C002", centroNombre: "Centro Médico Providencia", fecha: "2026-08-01", hora: "15:30", modalidad: "telemedicina", estado: "pendiente", motivo: "Chequeo cardiológico", creadaEn: "2026-07-25T14:00:00Z", monto: 15000, pagada: false },
   { id: "CIT-003", pacienteRut: "98765432-1", pacienteNombre: "María López", pacienteEmail: "maria@email.com", pacienteTelefono: "+56998765432", medicoId: "M004", medicoNombre: "Dra. Ana Torres", especialidad: "Ginecología", centroId: "C002", centroNombre: "Centro Médico Providencia", fecha: "2026-07-29", hora: "11:30", modalidad: "presencial", estado: "confirmada", motivo: "Control ginecológico anual", creadaEn: "2026-07-24T10:00:00Z", monto: 25000, pagada: true },
@@ -105,3 +105,8 @@ export const comunas = [
   "Ñuñoa", "Viña del Mar", "Valparaíso", "Concepción", "Talcahuano", "La Serena",
   "Antofagasta", "Temuco", "Rancagua", "Puerto Montt",
 ]
+
+export function actualizarEstadoCita(citaId: string, nuevoEstado: Cita["estado"]) {
+  const idx = citas.findIndex((c) => c.id === citaId)
+  if (idx !== -1) citas[idx] = { ...citas[idx], estado: nuevoEstado }
+}

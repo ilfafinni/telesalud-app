@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import { medicos, centros as todosCentros } from "@/lib/data"
-import { ArrowLeft, Calendar, MapPin, Video, Star, Clock, Award, Phone, Mail } from "lucide-react"
+import { ArrowLeft, Calendar, MapPin, Video, Star, Clock, Award, Phone } from "lucide-react"
 
 export default function MedicoProfilePage() {
   const { id } = useParams<{ id: string }>()
