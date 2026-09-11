@@ -32,6 +32,7 @@ export default function Header() {
             <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Especialidades</Link>
             <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Médicos</Link>
             <Link href="/centros" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Centros</Link>
+            <Link href="/blog" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-sm">Blog</Link>
 
             <div className="relative group">
               <button
@@ -86,6 +87,7 @@ export default function Header() {
               <Link href="/especialidades" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Especialidades</Link>
               <Link href="/medicos" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Buscador de Médicos</Link>
               <Link href="/centros" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Centros Médicos</Link>
+              <Link href="/blog" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Blog</Link>
               <Link href="/reserva" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Reservar Hora</Link>
               <Link href="/mis-citas" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Mis Citas</Link>
               <Link href="/telemedicina" className="text-gray-600 hover:text-primary font-medium px-3 py-2 rounded-lg hover:bg-gray-50" onClick={() => setMenuOpen(false)}>Telemedicina</Link>

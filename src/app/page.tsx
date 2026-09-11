@@ -19,9 +19,9 @@ const testimonios = [
 ]
 
 const blogPosts = [
-  { titulo: "¿Qué es la telemedicina y cómo funciona?", categoria: "Telemedicina", fecha: "15 Jul 2026", excerpt: "Descubre cómo las consultas médicas online están cambiando la forma de cuidar tu salud." },
-  { titulo: "Prevención de enfermedades cardiovasculares", categoria: "Cardiología", fecha: "10 Jul 2026", excerpt: "Consejos de nuestros especialistas para mantener tu corazón sano." },
-  { titulo: "Guía de nutrición para el adulto mayor", categoria: "Nutrición", fecha: "5 Jul 2026", excerpt: "Recomendaciones nutricionales para una vejez saludable." },
+  { slug: "que-es-la-telemedicina-y-como-funciona", titulo: "¿Qué es la telemedicina y cómo funciona?", categoria: "Telemedicina", fecha: "15 Jul 2026", excerpt: "Descubre cómo las consultas médicas online están cambiando la forma de cuidar tu salud." },
+  { slug: "prevencion-de-enfermedades-cardiovasculares", titulo: "Prevención de enfermedades cardiovasculares", categoria: "Cardiología", fecha: "10 Jul 2026", excerpt: "Consejos de nuestros especialistas para mantener tu corazón sano." },
+  { slug: "guia-de-nutricion-para-el-adulto-mayor", titulo: "Guía de nutrición para el adulto mayor", categoria: "Nutrición", fecha: "5 Jul 2026", excerpt: "Recomendaciones nutricionales para una vejez saludable." },
 ]
 
 export default function Home() {
@@ -137,7 +137,7 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             {blogPosts.map((post) => (
-              <div key={post.titulo} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all cursor-pointer">
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all cursor-pointer">
                 <span className="text-xs bg-primary-light text-primary px-2 py-1 rounded-full font-medium">{post.categoria}</span>
                 <h3 className="font-semibold text-secondary mt-3 mb-2">{post.titulo}</h3>
                 <p className="text-sm text-gray-500 mb-3">{post.excerpt}</p>
@@ -145,7 +145,7 @@ export default function Home() {
                   <span className="text-xs text-gray-400">{post.fecha}</span>
                   <span className="text-sm text-primary font-medium flex items-center gap-1">Leer <ChevronRight size={14} /></span>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
