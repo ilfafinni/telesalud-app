@@ -67,10 +67,10 @@ const footerSections: { titulo: string; links: FooterLink[] }[] = [
   {
     titulo: "Institucional",
     links: [
-      { label: "Quiénes somos", href: "/institucional", icon: Building2 },
-      { label: "Indicadores clínicos", href: "/indicadores", icon: BarChart3 },
-      { label: "Acreditación", href: "/acreditacion", icon: ShieldCheck },
-      { label: "Sostenibilidad", href: "/sostenibilidad", icon: Leaf },
+      { label: "Quiénes somos", href: "/portal", icon: Building2 },
+      { label: "Nuestra Red", href: "/centros", icon: BarChart3 },
+      { label: "Seguros y Convenios", href: "/convenios", icon: ShieldCheck },
+      { label: "Blog de Salud", href: "/blog", icon: Leaf },
     ],
   },
 ]

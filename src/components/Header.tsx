@@ -99,14 +99,14 @@ export default function Header() {
           </div>
           <div className="hidden sm:flex items-center gap-4">
             <Link
-              href="/portal"
+              href="/mis-citas"
               className="flex items-center gap-1 hover:text-primary/80 transition-colors font-medium"
             >
               <User size={12} /> MiPortal
             </Link>
             <span className="text-white/30">|</span>
             <Link
-              href="/redsalud"
+              href="/portal"
               className="flex items-center gap-1 hover:text-primary/80 transition-colors font-medium"
             >
               <Building2 size={12} /> MiRedSalud
