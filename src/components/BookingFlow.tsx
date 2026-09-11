@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { medicos, centros, especialidades } from "@/lib/data"
-import { Calendar, Clock, User, MapPin, Video, ArrowLeft, CheckCircle, CreditCard, AlertCircle } from "lucide-react"
+import { Calendar, Clock, User, MapPin, Video, ArrowLeft, CheckCircle, CreditCard, AlertCircle, Building, ShieldCheck, Receipt, Wallet, Landmark, FileText } from "lucide-react"
 
 type Step = "identify" | "specialty" | "doctor" | "datetime" | "confirm" | "payment" | "done"
 
@@ -66,6 +66,9 @@ export default function BookingFlow() {
   const [loading, setLoading] = useState(false)
   const [paymentError, setPaymentError] = useState("")
   const [webpayLoading, setWebpayLoading] = useState(false)
+  const [metodoPago, setMetodoPago] = useState<"webpay" | "servipag" | "despues">("webpay")
+  const [servipagLoading, setServipagLoading] = useState(false)
+  const [pagoPendiente, setPagoPendiente] = useState(false)
 
   const monto = form.modalidad === "presencial" ? MONTO_PRESENCIAL : MONTO_TELEMEDICINA
 
@@ -185,6 +188,23 @@ export default function BookingFlow() {
       setPaymentError("Error al procesar el pago")
     }
     setWebpayLoading(false)
+  }
+
+  const handleServipag = () => {
+    setServipagLoading(true)
+    setPaymentError("")
+    setPagoPendiente(false)
+    setTimeout(() => {
+      setServipagLoading(false)
+      setPagoPendiente(false)
+      setStep("done")
+    }, 1200)
+  }
+
+  const handlePagarDespues = () => {
+    setPagoPendiente(true)
+    setPaymentError("")
+    setStep("done")
   }
 
 return (
@@ -481,7 +501,7 @@ return (
       {step === "payment" && (
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
           <h2 className="text-xl font-semibold text-secondary mb-2">Pago</h2>
-          <p className="text-gray-500 text-sm mb-6">Confirma el pago para reservar tu cita.</p>
+          <p className="text-gray-500 text-sm mb-6">Elige cómo quieres pagar para reservar tu cita.</p>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-6">
             <div className="flex justify-between items-center mb-2">
@@ -506,23 +526,140 @@ return (
             </div>
           )}
 
-          <div className="space-y-3">
+          <p className="text-sm font-medium text-gray-700 mb-3">Método de pago</p>
+          <div className="grid grid-cols-1 gap-3 mb-6" role="radiogroup" aria-label="Método de pago">
             <button
-              onClick={handleWebpay}
-              disabled={webpayLoading}
-              className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              role="radio"
+              aria-checked={metodoPago === "webpay"}
+              onClick={() => setMetodoPago("webpay")}
+              className={`p-4 rounded-lg border text-left transition-all flex items-center gap-4 ${
+                metodoPago === "webpay" ? "border-primary bg-primary-light" : "border-gray-200 hover:border-primary hover:bg-gray-50"
+              }`}
             >
-              {webpayLoading ? (
-                "Conectando con Webpay..."
-              ) : (
-                <>
-                  <CreditCard size={20} />
-                  Pagar con Webpay
-                </>
-              )}
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${metodoPago === "webpay" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                <CreditCard size={20} />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-secondary">Webpay</p>
+                <p className="text-xs text-gray-500">Tarjeta de crédito o débito (Transbank)</p>
+              </div>
+              <span className="flex items-center gap-1 text-xs font-medium text-green-600 shrink-0">
+                <ShieldCheck size={14} />
+                Pago seguro
+              </span>
             </button>
+
+            <button
+              role="radio"
+              aria-checked={metodoPago === "servipag"}
+              onClick={() => setMetodoPago("servipag")}
+              className={`p-4 rounded-lg border text-left transition-all flex items-center gap-4 ${
+                metodoPago === "servipag" ? "border-primary bg-primary-light" : "border-gray-200 hover:border-primary hover:bg-gray-50"
+              }`}
+            >
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${metodoPago === "servipag" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                <Landmark size={20} />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-secondary">Servipag</p>
+                <p className="text-xs text-gray-500">Paga en Servipag, Santander, Banco Estado y más</p>
+              </div>
+              <span className="flex items-center gap-1 text-xs font-medium text-gray-500 shrink-0">
+                <Receipt size={14} />
+                Voucher
+              </span>
+            </button>
+
+            <button
+              role="radio"
+              aria-checked={metodoPago === "despues"}
+              onClick={() => setMetodoPago("despues")}
+              className={`p-4 rounded-lg border text-left transition-all flex items-center gap-4 ${
+                metodoPago === "despues" ? "border-primary bg-primary-light" : "border-gray-200 hover:border-primary hover:bg-gray-50"
+              }`}
+            >
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 ${metodoPago === "despues" ? "bg-primary text-white" : "bg-gray-100 text-gray-500"}`}>
+                <Wallet size={20} />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-secondary">Pagar en otro momento</p>
+                <p className="text-xs text-gray-500">Reserva tu hora y paga después</p>
+              </div>
+              <span className="flex items-center gap-1 text-xs font-medium text-amber-600 shrink-0">
+                <Clock size={14} />
+                Pendiente
+              </span>
+            </button>
+          </div>
+
+          {form.rut && (
+            <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg mb-6">
+              <FileText size={18} className="text-blue-600 shrink-0 mt-0.5" />
+              <div className="text-sm text-blue-800">
+                <p className="font-medium">¿Tienes FONASA o ISAPRE?</p>
+                <p className="text-xs text-blue-700">Puedes usar tu bono de salud al momento de pagar en el centro médico.</p>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-3">
+            {metodoPago === "webpay" && (
+              <button
+                onClick={handleWebpay}
+                disabled={webpayLoading}
+                className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {webpayLoading ? (
+                  "Conectando con Webpay..."
+                ) : (
+                  <>
+                    <CreditCard size={20} />
+                    Pagar con Webpay
+                  </>
+                )}
+              </button>
+            )}
+
+            {metodoPago === "servipag" && (
+              <button
+                onClick={handleServipag}
+                disabled={servipagLoading}
+                className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {servipagLoading ? (
+                  <>
+                    <Receipt size={20} className="animate-pulse" />
+                    Generando voucher...
+                  </>
+                ) : (
+                  <>
+                    <Building size={20} />
+                    Generar voucher Servipag
+                  </>
+                )}
+              </button>
+            )}
+
+            {metodoPago === "despues" && (
+              <>
+                <button
+                  onClick={handlePagarDespues}
+                  className="w-full bg-primary text-white font-semibold py-3 rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center gap-2"
+                >
+                  <Wallet size={20} />
+                  Confirmar y pagar después
+                </button>
+                <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <Clock size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                  <p className="text-xs text-amber-700">
+                    Tu cita queda <strong>confirmada</strong> pendiente de pago. Tendrás 15 minutos para completar el pago y asegurar tu hora.
+                  </p>
+                </div>
+              </>
+            )}
+
             <p className="text-xs text-gray-400 text-center">
-              Pago seguro via Webpay por Transbank. No guardamos tus datos de tarjeta.
+              Pago seguro vía Webpay por Transbank. No guardamos tus datos de tarjeta.
             </p>
           </div>
         </div>
@@ -537,11 +674,20 @@ return (
             </div>
           </div>
           <h2 className="text-xl font-semibold text-secondary mb-2">¡Cita confirmada!</h2>
-          <p className="text-gray-500 mb-4">Tu hora ha sido reservada exitosamente.</p>
+          <p className="text-gray-500 mb-4">{pagoPendiente ? "Tu hora ha sido reservada y quedó pendiente de pago." : "Tu hora ha sido reservada exitosamente."}</p>
           <div className="bg-gray-50 rounded-lg p-4 mb-6 inline-block">
             <p className="text-sm text-gray-500">Código de reserva</p>
             <p className="text-2xl font-bold text-primary">{citaId}</p>
           </div>
+          {pagoPendiente && (
+            <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg mb-4 text-left max-w-sm mx-auto">
+              <AlertCircle size={20} className="text-amber-600 shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">Pago pendiente</p>
+                <p className="text-xs text-amber-700">Completa el pago dentro de 15 minutos para asegurar tu hora. Puedes pagar desde Mis Citas.</p>
+              </div>
+            </div>
+          )}
           <div className="space-y-3">
             <p className="text-sm text-gray-600">
               <strong>Paciente:</strong> {form.nombre} ({form.rut})
@@ -552,13 +698,19 @@ return (
             <p className="text-sm text-gray-600">
               <strong>Modalidad:</strong> {form.modalidad === "presencial" ? "Presencial" : "Telemedicina"}
             </p>
-            <p className="text-sm text-gray-600">
-              <strong>Pagado:</strong> ${monto.toLocaleString("es-CL")} vía Webpay
-            </p>
+            {pagoPendiente ? (
+              <p className="text-sm text-amber-700">
+                <strong>Pago:</strong> Pendiente de pago
+              </p>
+            ) : (
+              <p className="text-sm text-gray-600">
+                <strong>Pagado:</strong> ${monto.toLocaleString("es-CL")} {metodoPago === "servipag" ? "vía Servipag" : "vía Webpay"}
+              </p>
+            )}
           </div>
           <div className="mt-6 flex flex-wrap gap-3 justify-center">
             <button
-              onClick={() => { setStep("identify"); setForm({ rut: "", nombre: "", email: "", telefono: "", especialidad: "", medicoId: "", centroId: "", fecha: "", hora: "", modalidad: "presencial", motivo: "" }) }}
+              onClick={() => { setStep("identify"); setMetodoPago("webpay"); setPagoPendiente(false); setCitaId(""); setForm({ rut: "", nombre: "", email: "", telefono: "", especialidad: "", medicoId: "", centroId: "", fecha: "", hora: "", modalidad: "presencial", motivo: "" }) }}
               className="bg-primary text-white font-semibold px-6 py-2.5 rounded-lg hover:bg-primary-dark transition-colors"
             >
               Nueva Reserva
